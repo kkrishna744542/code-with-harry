@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Tech Quiz - Attempts</title>
+	<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+	<header class="container">
+		<h1>Tech Quiz</h1>
+		<nav>
+			<a href="/">Home</a>
+			<a href="/attempts.html">Attempts</a>
+		</nav>
+	</header>
+	<main class="container">
+		<h2>Recent Attempts</h2>
+		<div id="attempt-list" class="card-list"></div>
+		<section id="attempt-detail" class="hidden">
+			<h3 id="attempt-title"></h3>
+			<div id="attempt-summary" class="muted"></div>
+			<div id="attempt-answers"></div>
+		</section>
+	</main>
+	<script type="module">
+	const $ = (s) => document.querySelector(s);
+	const list = $('#attempt-list');
+
+	async function fetchJSON(url) {
+		const res = await fetch(url);
+		if (!res.ok) throw new Error('HTTP ' + res.status);
+		return res.json();
+	}
+
+	function renderAttempts(attempts) {
+		list.innerHTML = '';
+		attempts.forEach((a) => {
+			const card = document.createElement('div');
+			card.className = 'card';
+			card.innerHTML = `
+				<h3>${a.quizTitle}</h3>
+				<div class="muted">${a.userName || 'Anonymous'} • ${new Date(a.createdAt).toLocaleString()}</div>
+				<div class="controls"><span class="tag">${a.score}/${a.total}</span><button data-id="${a.id}">View</button></div>
+			`;
+			card.querySelector('button').addEventListener('click', () => showAttempt(a.id));
+			list.appendChild(card);
+		});
+	}
+
+	async function showAttempt(id) {
+		const data = await fetchJSON(`/api/attempts/${id}`);
+		$('#attempt-detail').classList.remove('hidden');
+		$('#attempt-title').textContent = `${data.quizTitle}`;
+		$('#attempt-summary').textContent = `${data.userName || 'Anonymous'} • ${new Date(data.createdAt).toLocaleString()} • Score ${data.score}/${data.total}`;
+		const container = $('#attempt-answers');
+		container.innerHTML = '';
+		data.details.forEach((d, idx) => {
+			const div = document.createElement('div');
+			div.className = 'question';
+			div.innerHTML = `
+				<div><strong>Q${idx + 1}.</strong> ${d.questionText} ${d.isCorrect ? '<span class="result-correct">✔</span>' : '<span class="result-wrong">✖</span>'}</div>
+				<div class="choices">
+					${d.choices.map((c) => {
+						const marker = c.idx === d.correctIndex ? ' (correct)' : c.idx === d.selectedIndex ? ' (your answer)' : '';
+						const cls = c.idx === d.correctIndex ? 'result-correct' : c.idx === d.selectedIndex && !d.isCorrect ? 'result-wrong' : '';
+						return `<div class="choice ${cls}">${c.idx}. ${c.text}${marker}</div>`;
+					}).join('')}
+				</div>
+			`;
+			container.appendChild(div);
+		});
+	}
+
+	fetchJSON('/api/attempts').then(renderAttempts).catch(() => alert('Failed to load attempts'));
+	</script>
+</body>
+</html>

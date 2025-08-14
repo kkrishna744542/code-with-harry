@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Tech Quiz</title>
+	<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+	<header class="container">
+		<h1>Tech Quiz</h1>
+		<nav>
+			<a href="/">Home</a>
+			<a href="/attempts.html">Attempts</a>
+		</nav>
+	</header>
+	<main class="container" id="app">
+		<section id="quiz-list-section">
+			<h2>Available Quizzes</h2>
+			<div id="quiz-list" class="card-list"></div>
+		</section>
+
+		<section id="quiz-section" class="hidden">
+			<div class="quiz-header">
+				<h2 id="quiz-title"></h2>
+				<p id="quiz-description" class="muted"></p>
+			</div>
+			<div id="question-container"></div>
+			<div class="controls">
+				<input type="text" id="user-name" placeholder="Your name (optional)" />
+				<button id="submit-quiz">Submit</button>
+				<button id="back-home">Back</button>
+			</div>
+		</section>
+
+		<section id="result-section" class="hidden">
+			<h2>Result</h2>
+			<div id="result-summary"></div>
+			<div id="result-details"></div>
+			<div class="controls">
+				<a class="button" href="/attempts.html">View Attempts</a>
+				<button id="new-quiz">Take Another Quiz</button>
+			</div>
+		</section>
+	</main>
+	<script src="/main.js" type="module"></script>
+</body>
+</html>
